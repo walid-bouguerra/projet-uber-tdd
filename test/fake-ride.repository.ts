@@ -7,4 +7,8 @@ export class FakeRideRepository implements RideRepository {
     save(ride: Ride): void {
         this.rides.push(ride);
     }
+
+    findByRiderId(riderId: string): Ride[] {
+        return this.rides.filter((ride) => ride.riderId === riderId);
+    }
 }
