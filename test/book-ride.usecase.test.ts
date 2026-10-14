@@ -1,12 +1,15 @@
 import { BookRideUsecase } from "@/book-ride.usecase";
 import { CalculateRidePriceUsecase } from "@/calculate-ride-price.usecase";
+import { FakeRideRepository } from "./fake-ride.repository";
 
 describe("Book a ride", () => {
     let bookRide: BookRideUsecase;
+    let rideRepository: FakeRideRepository;
 
     beforeEach(() => {
         // Arrange
-        bookRide = new BookRideUsecase(new CalculateRidePriceUsecase());
+        rideRepository = new FakeRideRepository();
+        bookRide = new BookRideUsecase(new CalculateRidePriceUsecase(), rideRepository);
     });
 
     it("a rider cannot book a ride without enough funds", () => {
@@ -29,5 +32,16 @@ describe("Book a ride", () => {
 
         // Assert
         expect(isBooked).toBe(true);
+    });
+
+    it("saves the ride when the rider has enough funds", () => {
+        // Arrange
+        const rider = { balance: 2 };
+
+        // Act
+        bookRide.execute(rider, "PARIS", "PARIS", 0);
+
+        // Assert
+        expect(rideRepository.rides).toEqual([{ price: 2 }]);
     });
 })
