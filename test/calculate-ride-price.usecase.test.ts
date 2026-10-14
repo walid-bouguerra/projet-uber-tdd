@@ -23,4 +23,12 @@ describe("Calculate ride price", () => {
         // Assert
         expect(price).toBe(0);
     })
+
+    it("costs 10 euros from Paris to outside", () => {
+        // Act
+        const price = calculateRidePrice.execute("PARIS", "OUTSIDE");
+
+        // Assert
+        expect(price).toBe(10);
+    })
 })
