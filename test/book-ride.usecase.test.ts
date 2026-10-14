@@ -67,4 +67,16 @@ describe("Book a ride", () => {
         // Assert
         expect(isBooked).toBe(false);
     });
+
+    it("can book when the previous ride was cancelled", () => {
+        // Arrange
+        const rider = { id: "rider-1", balance: 10 };
+        rideRepository.rides = [{ riderId: "rider-1", price: 2, status: "CANCELLED" }];
+
+        // Act
+        const isBooked = bookRide.execute(rider, "PARIS", "PARIS", 0);
+
+        // Assert
+        expect(isBooked).toBe(true);
+    })
 })

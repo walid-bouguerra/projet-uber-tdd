@@ -4,4 +4,4 @@ export type Ride = {
     status: RideStatus;
 }
 
-export type RideStatus = "WAITING_FOR_DRIVER";
+export type RideStatus = "WAITING_FOR_DRIVER" | "CANCELLED";
