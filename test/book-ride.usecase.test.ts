@@ -14,7 +14,7 @@ describe("Book a ride", () => {
 
     it("a rider cannot book a ride without enough funds", () => {
         // Arrange
-        const rider = {balance: 1};
+        const rider = { id: "rider-1", balance: 1 };
 
         // Act
         const isBooked = bookRide.execute(rider, "PARIS", "PARIS", 0);
@@ -25,7 +25,7 @@ describe("Book a ride", () => {
 
     it("a rider can book a ride with enough funds", () => {
         // Arrange
-        const rider = {balance: 2};
+        const rider = { id: "rider-1", balance: 2};
 
         // Act
         const isBooked = bookRide.execute(rider, "PARIS", "PARIS", 0);
@@ -36,18 +36,18 @@ describe("Book a ride", () => {
 
     it("saves the ride when the rider has enough funds", () => {
         // Arrange
-        const rider = { balance: 2 };
+        const rider = { id: "rider-1", balance: 2 };
 
         // Act
         bookRide.execute(rider, "PARIS", "PARIS", 0);
 
         // Assert
-        expect(rideRepository.rides).toEqual([{ price: 2 }]);
+        expect(rideRepository.rides).toEqual([{ riderId: "rider-1", price: 2 }]);
     });
 
     it("does not save the ride without enough funds", () => {
         // Arrange
-        const rider = { balance: 1 };
+        const rider = { id: "rider-1", balance: 1 };
 
         // Act
         bookRide.execute(rider, "PARIS", "PARIS", 0);
