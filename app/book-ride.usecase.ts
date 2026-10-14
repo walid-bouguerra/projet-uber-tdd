@@ -1,15 +1,20 @@
 import { CalculateRidePriceUsecase } from "./calculate-ride-price.usecase";
+import { RideRepository } from "./ride.repository";
 
 export type Rider = {
     balance: number;
 };
 
 export class BookRideUsecase {
-
-    constructor(private readonly calculateRidePrice: CalculateRidePriceUsecase) {}
+    constructor(
+        private readonly calculateRidePrice: CalculateRidePriceUsecase,
+        private readonly rideRepository: RideRepository
+    ) {}
 
     execute(rider: Rider, from: string, to: string, distance: number): boolean {
         const ridePrice = this.calculateRidePrice.execute(from, to, distance);
-        return rider.balance >= ridePrice;
+        if (rider.balance < ridePrice) return false;
+        this.rideRepository.save({ price: ridePrice });
+        return true;
     }
 }
