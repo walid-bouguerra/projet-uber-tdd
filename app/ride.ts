@@ -1,4 +1,5 @@
 export type Ride = {
+    id: string;
     riderId: string;
     price: number;
     status: RideStatus;
