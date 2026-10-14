@@ -79,4 +79,17 @@ describe("Book a ride", () => {
         // Assert
         expect(isBooked).toBe(true);
     })
+
+    it("can book when another rider has a ride waiting for a driver", () => {
+        // Arrange
+        const rider = { id: "rider-1", balance: 10 };
+        rideRepository.rides = [{ riderId: "rider-2", price: 2, status: "WAITING_FOR_DRIVER" }];
+
+        // Act
+        const isBooked = bookRide.execute(rider, "PARIS", "PARIS", 0);
+
+        // Assert
+        expect(isBooked).toBe(true);
+    });
+
 })
