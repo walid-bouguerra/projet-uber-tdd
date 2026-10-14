@@ -1,14 +1,26 @@
 import { CalculateRidePriceUsecase } from "@/calculate-ride-price.usecase";
 
 describe("Calculate ride price", () => {
-    it("costs 2 euros from Paris to Paris", () => {
-        // Arrange
-        const calculateRidePrice = new CalculateRidePriceUsecase();
+    let calculateRidePrice: CalculateRidePriceUsecase;
 
+    beforeEach(() => {
+        // Arrange
+        calculateRidePrice = new CalculateRidePriceUsecase();
+    });
+
+    it("costs 2 euros from Paris to Paris", () => {
         // Act
         const price = calculateRidePrice.execute("PARIS", "PARIS");
 
         // Assert
         expect(price).toBe(2);
+    })
+
+    it("costs 0 euros from outside to Paris", () => {
+        // Act
+        const price = calculateRidePrice.execute("OUTSIDE", "PARIS");
+
+        // Assert
+        expect(price).toBe(0);
     })
 })
