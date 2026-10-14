@@ -44,4 +44,15 @@ describe("Book a ride", () => {
         // Assert
         expect(rideRepository.rides).toEqual([{ price: 2 }]);
     });
+
+    it("does not save the ride without enough funds", () => {
+        // Arrange
+        const rider = { balance: 1 };
+
+        // Act
+        bookRide.execute(rider, "PARIS", "PARIS", 0);
+
+        // Assert
+        expect(rideRepository.rides).toEqual([]);
+    });
 })
