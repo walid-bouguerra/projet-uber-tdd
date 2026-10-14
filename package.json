@@ -1,0 +1,30 @@
+{
+	"name": "uber-tdd",
+	"version": "1.0.0",
+	"private": true,
+	"license": "MIT",
+	"scripts": {
+		"test": "vitest",
+		"test:coverage": "vitest run --coverage",
+		"test:integration": "vitest --config ./setup-integration-tests/vitest-integration.config.ts",
+		"test:e2e": "vitest --config ./setup-integration-tests/vitest-e2e.config.ts",
+		"knex": "knex --knexfile ./setup-integration-tests/knexfile.ts --env test"
+	},
+	"dependencies": {
+		"express": "^5.1.0",
+		"knex": "^3.1.0",
+		"pg": "^8.16.3"
+	},
+	"devDependencies": {
+		"@types/express": "^5.0.3",
+		"@types/node": "^24.5.2",
+		"@types/supertest": "^6.0.3",
+		"@vitest/coverage-v8": "3.2.4",
+		"supertest": "^7.1.4",
+		"testcontainers": "^11.6.0",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.9.2",
+		"vite-tsconfig-paths": "5.1.4",
+		"vitest": "3.2.4"
+	}
+}
