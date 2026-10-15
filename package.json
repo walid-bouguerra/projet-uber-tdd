@@ -4,6 +4,7 @@
 	"private": true,
 	"license": "MIT",
 	"scripts": {
+		"dev": "ts-node ./api/server.ts",
 		"test": "vitest",
 		"test:coverage": "vitest run --coverage",
 		"test:integration": "vitest --config ./setup-integration-tests/vitest-integration.config.ts",
