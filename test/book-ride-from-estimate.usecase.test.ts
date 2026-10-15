@@ -40,6 +40,21 @@ describe("Book a ride from an estimate", () => {
         ]);
     });
 
+    it("returns the booked ride", () => {
+        // Arrange
+        clock.date = new Date("2026-06-15T10:00:00");
+        estimateRepository.estimates = [
+            { token: "token-1", riderId: "rider-1", price: 7, expiresAt: new Date("2026-06-15T10:05:00") },
+        ];
+        idGenerator.id = "ride-1";
+
+        // Act
+        const ride = bookRideFromEstimate.execute("token-1");
+
+        // Assert
+        expect(ride).toEqual({ id: "ride-1", riderId: "rider-1", price: 7, status: "WAITING_FOR_DRIVER" });
+    });
+
     it("cannot book with an expired estimate", () => {
         // Arrange
         estimateRepository.estimates = [
