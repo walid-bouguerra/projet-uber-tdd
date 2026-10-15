@@ -8,6 +8,7 @@ describe("Estimate a ride", () => {
     let estimateRide: EstimateRideUsecase;
     let clock: StubClock;
     let idGenerator: StubIDGenerator;
+    const rider = { id: "rider-1", balance: 10, birthDate: new Date("1990-01-01T00:00:00") };
 
     beforeEach(() => {
         // Arrange
@@ -18,7 +19,7 @@ describe("Estimate a ride", () => {
 
     it("returns the estimated price", () => {
         // Act
-        const estimate = estimateRide.execute("PARIS", "PARIS", 0);
+        const estimate = estimateRide.execute(rider, "PARIS", "PARIS", 0);
 
         // Assert
         expect(estimate.price).toBe(2);
@@ -29,7 +30,7 @@ describe("Estimate a ride", () => {
         idGenerator.id = "token-1";
 
         // Act
-        const estimate = estimateRide.execute("PARIS", "PARIS", 0);
+        const estimate = estimateRide.execute(rider, "PARIS", "PARIS", 0);
 
         // Assert
         expect(estimate.token).toBe("token-1");
@@ -40,9 +41,20 @@ describe("Estimate a ride", () => {
         clock.date = new Date("2026-06-15T10:00:00");
 
         // Act
-        const estimate = estimateRide.execute("PARIS", "PARIS", 0);
+        const estimate = estimateRide.execute(rider, "PARIS", "PARIS", 0);
 
         // Assert
         expect(estimate.expiresAt).toEqual(new Date("2026-06-15T10:05:00"));
+    });
+
+    it("includes the UberX fee in the estimate", () => {
+        // Arrange
+        const rider = { id: "rider-1", balance: 10, birthDate: new Date("1990-01-01T00:00:00") };
+
+        // Act
+        const estimate = estimateRide.execute(rider, "PARIS", "PARIS", 0, { uberX: true });
+
+        // Assert
+        expect(estimate.price).toBe(7);
     });
 });
