@@ -86,4 +86,11 @@ describe("Calculate ride price", () => {
         expect(price).toBe(3);
     });
 
+    it("adds 5 euros for an UberX ride", () => {
+        // Act
+        const price = calculateRidePrice.execute("PARIS", "PARIS", 0, { uberX: true });
+
+        // Assert
+        expect(price).toBe(7);
+    });
 })
