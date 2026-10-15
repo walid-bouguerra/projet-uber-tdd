@@ -1,11 +1,7 @@
 import { CalculateRidePriceUsecase } from "./calculate-ride-price.usecase";
 import { IDGenerator } from "./id-generator";
 import { RideRepository } from "./ride.repository";
-
-export type Rider = {
-    id: string;
-    balance: number;
-};
+import { Rider } from "./rider";
 
 export class BookRideUsecase {
     constructor(

@@ -17,7 +17,7 @@ describe("Book a ride", () => {
 
     it("a rider cannot book a ride without enough funds", () => {
         // Arrange
-        const rider = { id: "rider-1", balance: 1 };
+        const rider = { id: "rider-1", balance: 1 , birthDate: new Date("1990-01-01T00:00:00")};
 
         // Act
         const isBooked = bookRide.execute(rider, "PARIS", "PARIS", 0);
@@ -28,7 +28,7 @@ describe("Book a ride", () => {
 
     it("a rider can book a ride with enough funds", () => {
         // Arrange
-        const rider = { id: "rider-1", balance: 2 };
+        const rider = { id: "rider-1", balance: 2 , birthDate: new Date("1990-01-01T00:00:00")};
 
         // Act
         const isBooked = bookRide.execute(rider, "PARIS", "PARIS", 0);
@@ -39,7 +39,7 @@ describe("Book a ride", () => {
 
     it("saves the ride when the rider has enough funds", () => {
         // Arrange
-        const rider = { id: "rider-1", balance: 2 };
+        const rider = { id: "rider-1", balance: 2 , birthDate: new Date("1990-01-01T00:00:00")};
         idGenerator.id = "ride-1";
 
         // Act
@@ -51,7 +51,7 @@ describe("Book a ride", () => {
 
     it("does not save the ride without enough funds", () => {
         // Arrange
-        const rider = { id: "rider-1", balance: 1 };
+        const rider = { id: "rider-1", balance: 1 , birthDate: new Date("1990-01-01T00:00:00")};
 
         // Act
         bookRide.execute(rider, "PARIS", "PARIS", 0);
@@ -62,7 +62,7 @@ describe("Book a ride", () => {
 
     it("cannot book while another ride is waiting for a driver", () => {
         // Arrange
-        const rider = { id: "rider-1", balance: 10 };
+        const rider = { id: "rider-1", balance: 10 , birthDate: new Date("1990-01-01T00:00:00")};
         rideRepository.rides = [{ id: "previous-ride", riderId: "rider-1", price: 2, status: "WAITING_FOR_DRIVER" }];
 
         // Act
@@ -74,7 +74,7 @@ describe("Book a ride", () => {
 
     it("can book when the previous ride was cancelled", () => {
         // Arrange
-        const rider = { id: "rider-1", balance: 10 };
+        const rider = { id: "rider-1", balance: 10 , birthDate: new Date("1990-01-01T00:00:00")};
         rideRepository.rides = [{ id: "previous-ride", riderId: "rider-1", price: 2, status: "CANCELLED" }];
 
         // Act
@@ -86,7 +86,7 @@ describe("Book a ride", () => {
 
     it("can book when another rider has a ride waiting for a driver", () => {
         // Arrange
-        const rider = { id: "rider-1", balance: 10 };
+        const rider = { id: "rider-1", balance: 10 , birthDate: new Date("1990-01-01T00:00:00")};
         rideRepository.rides = [{ id: "previous-ride", riderId: "rider-2", price: 2, status: "WAITING_FOR_DRIVER" }];
 
         // Act
