@@ -1,5 +1,6 @@
 import { Clock } from "./clock";
 import { EstimateExpiredError } from "./estimate-expired.error";
+import { EstimateNotFoundError } from "./estimate-not-found.error";
 import { EstimateRepository } from "./estimate.repository";
 import { IDGenerator } from "./id-generator";
 import { RideRepository } from "./ride.repository";
@@ -13,7 +14,8 @@ export class BookRideFromEstimateUsecase {
     ) {}
 
     execute(token: string): void {
-        const estimate = this.estimateRepository.findByToken(token)!;
+        const estimate = this.estimateRepository.findByToken(token);
+        if (!estimate) throw new EstimateNotFoundError();
         if (this.clock.now() > estimate.expiresAt) throw new EstimateExpiredError();
 
         this.rideRepository.save({

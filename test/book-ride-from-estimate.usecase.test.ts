@@ -4,6 +4,7 @@ import { FakeRideRepository } from "./fake-ride.repository";
 import { StubIDGenerator } from "./stub-id-generator";
 import { StubClock } from "./stub-clock";
 import { EstimateExpiredError } from "@/estimate-expired.error";
+import { EstimateNotFoundError } from "@/estimate-not-found.error";
 
 describe("Book a ride from an estimate", () => {
     let bookRideFromEstimate: BookRideFromEstimateUsecase;
@@ -51,5 +52,12 @@ describe("Book a ride from an estimate", () => {
         // Assert
         expect(book).toThrow(EstimateExpiredError);
         expect(rideRepository.rides).toEqual([]);
+    });
+    it("cannot book with an unknown token", () => {
+        // Act
+        const book = () => bookRideFromEstimate.execute("unknown-token");
+
+        // Assert
+        expect(book).toThrow(EstimateNotFoundError);
     });
 });
