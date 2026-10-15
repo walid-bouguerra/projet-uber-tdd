@@ -93,4 +93,18 @@ describe("Calculate ride price", () => {
         // Assert
         expect(price).toBe(7);
     });
+
+    it("offers the UberX fee on the rider's birthday", () => {
+        // Arrange
+        clock.date = new Date("2026-10-15T10:00:00");
+
+        // Act
+        const price = calculateRidePrice.execute("PARIS", "PARIS", 0, {
+            uberX: true,
+            riderBirthDate: new Date("2000-10-15T00:00:00"),
+        });
+
+        // Assert
+        expect(price).toBe(2);
+    });
 })
