@@ -7,4 +7,8 @@ export class FakeEstimateRepository implements EstimateRepository {
     save(estimate: Estimate): void {
         this.estimates.push(estimate);
     }
+
+    findByToken(token: string): Estimate | undefined {
+    return this.estimates.find((estimate) => estimate.token === token);
+}
 }
