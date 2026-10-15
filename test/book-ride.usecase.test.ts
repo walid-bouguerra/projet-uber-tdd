@@ -2,17 +2,20 @@ import { BookRideUsecase } from "@/book-ride.usecase";
 import { CalculateRidePriceUsecase } from "@/calculate-ride-price.usecase";
 import { FakeRideRepository } from "./fake-ride.repository";
 import { StubIDGenerator } from "./stub-id-generator";
+import { StubClock } from "./stub-clock";
 
 describe("Book a ride", () => {
     let bookRide: BookRideUsecase;
     let rideRepository: FakeRideRepository;
     let idGenerator: StubIDGenerator;
+    let clock: StubClock;
 
     beforeEach(() => {
         // Arrange
         rideRepository = new FakeRideRepository();
         idGenerator = new StubIDGenerator();
-        bookRide = new BookRideUsecase(new CalculateRidePriceUsecase(), rideRepository, idGenerator);
+        clock = new StubClock();
+        bookRide = new BookRideUsecase(new CalculateRidePriceUsecase(clock), rideRepository, idGenerator);
     });
 
     it("a rider cannot book a ride without enough funds", () => {

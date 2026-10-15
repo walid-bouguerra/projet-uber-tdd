@@ -1,11 +1,13 @@
 import { CalculateRidePriceUsecase } from "@/calculate-ride-price.usecase";
+import { StubClock } from "./stub-clock";
 
 describe("Calculate ride price", () => {
     let calculateRidePrice: CalculateRidePriceUsecase;
-
+    let clock: StubClock;
     beforeEach(() => {
         // Arrange
-        calculateRidePrice = new CalculateRidePriceUsecase();
+        clock = new StubClock();
+        calculateRidePrice = new CalculateRidePriceUsecase(clock);
     });
 
     it("costs 2 euros from Paris to Paris", () => {
@@ -39,4 +41,49 @@ describe("Calculate ride price", () => {
         // Assert
         expect(price).toBe(11);
     })
+
+    it("doubles the price on Christmas day", () => {
+        // Arrange
+        clock.date = new Date("2026-12-25T10:00:00");
+
+        // Act
+        const price = calculateRidePrice.execute("PARIS", "PARIS", 0);
+
+        // Assert
+        expect(price).toBe(4);
+    });
+
+    it("doubles the total price on Christmas day, kilometers included", () => {
+        // Arrange
+        clock.date = new Date("2026-12-25T10:00:00");
+
+        // Act
+        const price = calculateRidePrice.execute("PARIS", "PARIS", 2);
+
+        // Assert
+        expect(price).toBe(6);
+    });
+
+    it("does not double the price on another day of December", () => {
+        // Arrange
+        clock.date = new Date("2026-12-24T10:00:00");
+
+        // Act
+        const price = calculateRidePrice.execute("PARIS", "PARIS", 2);
+
+        // Assert
+        expect(price).toBe(3);
+    });
+
+    it("does not double the price on the 25th of another month", () => {
+        // Arrange
+        clock.date = new Date("2026-11-25T10:00:00");
+
+        // Act
+        const price = calculateRidePrice.execute("PARIS", "PARIS", 2);
+
+        // Assert
+        expect(price).toBe(3);
+    });
+
 })
