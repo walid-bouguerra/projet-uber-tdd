@@ -13,7 +13,7 @@ describe("Estimate a ride", () => {
         // Arrange
         clock = new StubClock();
         idGenerator = new StubIDGenerator();
-        estimateRide = new EstimateRideUsecase(new CalculateRidePriceUsecase(clock), idGenerator);
+        estimateRide = new EstimateRideUsecase(new CalculateRidePriceUsecase(clock), idGenerator, clock);
     });
 
     it("returns the estimated price", () => {
@@ -33,5 +33,16 @@ describe("Estimate a ride", () => {
 
         // Assert
         expect(estimate.token).toBe("token-1");
+    });
+
+    it("expires 5 minutes after the estimate", () => {
+        // Arrange
+        clock.date = new Date("2026-06-15T10:00:00");
+
+        // Act
+        const estimate = estimateRide.execute("PARIS", "PARIS", 0);
+
+        // Assert
+        expect(estimate.expiresAt).toEqual(new Date("2026-06-15T10:05:00"));
     });
 });
