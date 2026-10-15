@@ -77,4 +77,20 @@ describe("Book a ride from an estimate", () => {
         expect(book).toThrow(EstimateAlreadyUsedError);
         expect(rideRepository.rides).toEqual([]);
     });
+
+    it("marks the estimate as used after booking", () => {
+        // Arrange
+        clock.date = new Date("2026-06-15T10:00:00");
+        estimateRepository.estimates = [
+            { token: "token-1", riderId: "rider-1", price: 7, expiresAt: new Date("2026-06-15T10:05:00") },
+        ];
+
+        // Act
+        bookRideFromEstimate.execute("token-1");
+
+        // Assert
+        expect(estimateRepository.estimates).toEqual([
+            { token: "token-1", riderId: "rider-1", price: 7, expiresAt: new Date("2026-06-15T10:05:00"), used: true },
+        ]);
+    });
 });

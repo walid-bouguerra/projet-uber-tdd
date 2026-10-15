@@ -9,6 +9,10 @@ export class FakeEstimateRepository implements EstimateRepository {
     }
 
     findByToken(token: string): Estimate | undefined {
-    return this.estimates.find((estimate) => estimate.token === token);
-}
+        return this.estimates.find((estimate) => estimate.token === token);
+    }
+
+    update(estimate: Estimate): void {
+        this.estimates = this.estimates.map((existing) => (existing.token === estimate.token ? estimate : existing));
+    }
 }

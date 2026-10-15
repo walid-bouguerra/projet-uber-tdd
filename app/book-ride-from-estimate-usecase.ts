@@ -26,5 +26,7 @@ export class BookRideFromEstimateUsecase {
             price: estimate.price,
             status: "WAITING_FOR_DRIVER",
         });
+
+        this.estimateRepository.update({ ...estimate, used: true });
     }
 }
