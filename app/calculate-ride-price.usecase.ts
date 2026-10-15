@@ -12,7 +12,10 @@ export class CalculateRidePriceUsecase {
         const today = this.clock.now();
         const isChristmasDay = today.getDate() === 25 && today.getMonth() === 11;
         const riderHasBirthday = isBirthday(options.riderBirthDate, today);
+        const isMorningRushHour = today.getHours() >= 8 && today.getHours() < 9;
+        const isEveningRushHour = today.getHours() >= 18 && today.getHours() < 20;
         if (isChristmasDay) price *= 2;
+        if (isMorningRushHour || isEveningRushHour) price *= 1.5;
         if (options.uberX && !riderHasBirthday) price += 5;
         return price;
     }

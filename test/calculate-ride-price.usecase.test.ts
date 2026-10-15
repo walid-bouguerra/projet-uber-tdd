@@ -107,4 +107,60 @@ describe("Calculate ride price", () => {
         // Assert
         expect(price).toBe(2);
     });
+
+    it("adds 50% during the morning rush hour", () => {
+        // Arrange
+        clock.date = new Date("2026-06-15T08:30:00");
+
+        // Act
+        const price = calculateRidePrice.execute("PARIS", "PARIS", 0);
+
+        // Assert
+        expect(price).toBe(3);
+    });
+
+    it("adds 50% during the evening rush hour", () => {
+        // Arrange
+        clock.date = new Date("2026-06-15T18:30:00");
+
+        // Act
+        const price = calculateRidePrice.execute("PARIS", "PARIS", 0);
+
+        // Assert
+        expect(price).toBe(3);
+    });
+
+    it("does not add 50% at 9:00", () => {
+        // Arrange
+        clock.date = new Date("2026-06-15T09:00:00");
+
+        // Act
+        const price = calculateRidePrice.execute("PARIS", "PARIS", 0);
+
+        // Assert
+        expect(price).toBe(2);
+    });
+
+    it("does not add 50% at 20:00", () => {
+        // Arrange
+        clock.date = new Date("2026-06-15T20:00:00");
+
+        // Act
+        const price = calculateRidePrice.execute("PARIS", "PARIS", 0);
+
+        // Assert
+        expect(price).toBe(2);
+    });
+
+
+    it("combines the rush hour surcharge with Christmas", () => {
+        // Arrange
+        clock.date = new Date("2026-12-25T08:30:00");
+
+        // Act
+        const price = calculateRidePrice.execute("PARIS", "PARIS", 0);
+
+        // Assert
+        expect(price).toBe(6);
+    });
 })
