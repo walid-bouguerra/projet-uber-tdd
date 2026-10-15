@@ -8,6 +8,7 @@ import { EstimateAlreadyUsedError } from "../app/estimate-already-used.error";
 import { EstimateExpiredError } from "../app/estimate-expired.error";
 import { EstimateNotFoundError } from "../app/estimate-not-found.error";
 import { EstimateRideUsecase } from "../app/estimate-ride.usecase";
+import { ListRiderRidesUsecase } from "../app/list-rider-rides.usecase";
 import { Rider } from "../app/rider";
 import { InMemoryEstimateRepository } from "./infra/in-memory-estimate.repository";
 import { InMemoryRideRepository } from "./infra/in-memory-ride.repository";
@@ -27,6 +28,7 @@ export function createApp({ clock = new SystemClock() }: { clock?: Clock } = {})
 
     const bookRide = new BookRideUsecase(calculateRidePrice, rideRepository, idGenerator);
     const cancelRide = new CancelRideUsecase(rideRepository, clock);
+    const listRiderRides = new ListRiderRidesUsecase(rideRepository);
     const estimateRide = new EstimateRideUsecase(calculateRidePrice, idGenerator, clock, estimateRepository);
     const bookRideFromEstimate = new BookRideFromEstimateUsecase(estimateRepository, rideRepository, idGenerator, clock);
 
@@ -46,6 +48,10 @@ export function createApp({ clock = new SystemClock() }: { clock?: Clock } = {})
         const isCancelled = cancelRide.execute(toRider(request.body.rider), request.params.id);
         if (!isCancelled) return response.status(409).json({ message: "Ride already cancelled" });
         return response.status(200).json({ message: "Ride cancelled" });
+    });
+
+    app.get("/riders/:riderId/rides", (request, response) => {
+        return response.status(200).json(listRiderRides.execute(request.params.riderId));
     });
 
     app.post("/rides/estimate", (request, response) => {

@@ -110,6 +110,29 @@ describe("Rides API", () => {
         });
     });
 
+    describe("GET /riders/:riderId/rides", () => {
+        it("returns 200 with an empty history", async () => {
+            // Act
+            const response = await request(app).get("/riders/rider-1/rides");
+
+            // Assert
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual([]);
+        });
+
+        it("returns the rides booked by the rider", async () => {
+            // Arrange
+            const ride = await bookAnEstimatedRide();
+
+            // Act
+            const response = await request(app).get("/riders/rider-1/rides");
+
+            // Assert
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual([ride]);
+        });
+    });
+
     describe("POST /rides/estimate", () => {
         it("returns 200 with the price, a token and the expiration date", async () => {
             // Act
