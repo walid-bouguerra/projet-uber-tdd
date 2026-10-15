@@ -1,4 +1,5 @@
 import { Clock } from "./clock";
+import { EstimateAlreadyUsedError } from "./estimate-already-used.error";
 import { EstimateExpiredError } from "./estimate-expired.error";
 import { EstimateNotFoundError } from "./estimate-not-found.error";
 import { EstimateRepository } from "./estimate.repository";
@@ -17,6 +18,7 @@ export class BookRideFromEstimateUsecase {
         const estimate = this.estimateRepository.findByToken(token);
         if (!estimate) throw new EstimateNotFoundError();
         if (this.clock.now() > estimate.expiresAt) throw new EstimateExpiredError();
+        if (estimate.used) throw new EstimateAlreadyUsedError();
 
         this.rideRepository.save({
             id: this.idGenerator.generate(),

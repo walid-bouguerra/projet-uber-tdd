@@ -5,6 +5,7 @@ import { StubIDGenerator } from "./stub-id-generator";
 import { StubClock } from "./stub-clock";
 import { EstimateExpiredError } from "@/estimate-expired.error";
 import { EstimateNotFoundError } from "@/estimate-not-found.error";
+import { EstimateAlreadyUsedError } from "@/estimate-already-used.error";
 
 describe("Book a ride from an estimate", () => {
     let bookRideFromEstimate: BookRideFromEstimateUsecase;
@@ -53,11 +54,27 @@ describe("Book a ride from an estimate", () => {
         expect(book).toThrow(EstimateExpiredError);
         expect(rideRepository.rides).toEqual([]);
     });
+
     it("cannot book with an unknown token", () => {
         // Act
         const book = () => bookRideFromEstimate.execute("unknown-token");
 
         // Assert
         expect(book).toThrow(EstimateNotFoundError);
+    });
+
+    it("cannot book with an estimate already used", () => {
+        // Arrange
+        clock.date = new Date("2026-06-15T10:00:00");
+        estimateRepository.estimates = [
+            { token: "token-1", riderId: "rider-1", price: 7, expiresAt: new Date("2026-06-15T10:05:00"), used: true },
+        ];
+
+        // Act
+        const book = () => bookRideFromEstimate.execute("token-1");
+
+        // Assert
+        expect(book).toThrow(EstimateAlreadyUsedError);
+        expect(rideRepository.rides).toEqual([]);
     });
 });
