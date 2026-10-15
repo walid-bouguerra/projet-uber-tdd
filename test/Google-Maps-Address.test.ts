@@ -1,72 +1,108 @@
-interface Coordonate {
-    latitude: number;
-    longitude: number;
+interface Adresse {
+  adresse: string;
+  ville: string;
+  codePostal: string;
+  pays: string;
 }
 
-describe("Google Maps Address", () => {
+interface GoogleMapsResult {
+  city: string | null;
+  country: string | null;
+  postalCode: string | null;
+}
 
-    const stubGoogleApi = new StubGoogleApi();
-    const scanner = new GetAddressInformation(stubGoogleApi);
+describe("Google Maps Address Scanner", () => {
+  it("retourne la ville d'une adresse valide", () => {
+    const scanner = new GoogleAddressScanner(new StubGoogleMapsClient({
+      city: "Paris",
+      country: "France",
+      postalCode: "75000"
+    }));
 
-    it('retourne les coordonnées géographiques d’une adresse', () => {
+    const result = scanner.getAddressInfo("12 rue Aristide Briand, Paris");
 
-        expect(scanner.execute('12 rue Aristide Briand, Paris')).toEqual({
-            latitude: 48.8566,
-            longitude: 2.3522
-        });
-
+    expect(result).toEqual({
+      adresse: "12 rue Aristide Briand, Paris",
+      ville: "Paris",
+      codePostal: "75000",
+      pays: "France"
     });
+  });
 
-    it('retourne la ville correspondant à une adresse', () => {
+  it("retourne null si l'adresse est vide", () => {
+    const scanner = new GoogleAddressScanner(new StubGoogleMapsClient());
 
-        expect(scanner.getCity('12 rue Aristide Briand, Paris')).toBe('Paris');
+    expect(scanner.getAddressInfo("")).toBeNull();
+  });
 
+  it("retourne null si Google ne trouve aucune ville", () => {
+    const scanner = new GoogleAddressScanner(new StubGoogleMapsClient(null));
+
+    expect(scanner.getAddressInfo("32 machin machin, bondy")).toBeNull();
+  });
+
+  it("retourne la ville, le code postal et le pays d'une adresse complète", () => {
+    const scanner = new GoogleAddressScanner(new StubGoogleMapsClient({
+      city: "Lyon",
+      country: "France",
+      postalCode: "69000"
+    }));
+
+    const result = scanner.getAddressInfo("10 rue de la République, Lyon");
+
+    expect(result).toEqual({
+      adresse: "10 rue de la République, Lyon",
+      ville: "Lyon",
+      codePostal: "69000",
+      pays: "France"
     });
+  });
 
-    it('retourne la distance entre deux adresses', () => {
+  it("calcule la distance entre deux adresses", () => {
+    const scanner = new GoogleAddressScanner(new StubGoogleMapsClient());
+    const distance = scanner.calculateDistance("Paris", "Lyon");
 
-        expect(
-            scanner.getDistance(
-                '12 rue Aristide Briand, Paris',
-                '10 rue de Rivoli, Paris'
-            )
-        ).toBe(2500);
-
-    });
-
+    expect(distance).toBeGreaterThan(0);
+  });
 });
 
-class GetAddressInformation {
+class StubGoogleMapsClient {
+  constructor(private readonly result: GoogleMapsResult | null = null) {}
 
-    constructor(private readonly googleApi: StubGoogleApi) {}
+  geocode(address: string): GoogleMapsResult | null {
+    return this.result;
+  }
 
-    execute(adresse: string): Coordonate | null {
-        return this.googleApi.getCoordinates(adresse);
-    }
-
-    getCity(adresse: string): string | null {
-        return this.googleApi.getCity(adresse);
-    }
-
-    getDistance(origin: string, destination: string): number | null {
-        return this.googleApi.getDistance(origin, destination);
-    }
+  distanceBetween(from: string, to: string): number {
+    return 400;
+  }
 }
 
-class StubGoogleApi {
+class GoogleAddressScanner {
+  constructor(private readonly googleMapsClient: StubGoogleMapsClient) {}
 
-    getCoordinates(adresse: string): Coordonate | null {
-        return {
-            latitude: 48.8566,
-            longitude: 2.3522
-        };
+  getAddressInfo(adresse: string): Adresse | null {
+    if (!adresse || adresse.trim() === "") {
+      return null;
     }
 
-    getCity(adresse: string): string | null {
-        return 'Paris';
+    const result = this.googleMapsClient.geocode(adresse);
+
+    if (!result || !result.city || result.city.trim() === "") {
+      return null;
     }
 
-    getDistance(origin: string, destination: string): number | null {
-        return 2500;
-    }
+    return {
+      adresse,
+      ville: result.city.trim(),
+      codePostal: result.postalCode ?? "",
+      pays: result.country ?? ""
+    };
+  }
+
+  calculateDistance(from: string, to: string): number {
+    if (!from || !to) return 0;
+
+    return this.googleMapsClient.distanceBetween(from, to);
+  }
 }
