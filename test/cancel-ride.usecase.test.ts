@@ -61,4 +61,30 @@ describe("Cancel a ride", () => {
         // Assert
         expect(rideRepository.rides).toEqual([{ id: "ride-1", riderId: "rider-1", price: 2, status: "CANCELLED" }]);
     });
+
+    it("charges the fee on the same day of another month", () => {
+        // Arrange
+        const rider = { id: "rider-1", balance: 10, birthDate: new Date("2000-11-15T00:00:00") };
+        clock.date = new Date("2026-10-15T10:00:00");
+        rideRepository.rides = [{ id: "ride-1", riderId: "rider-1", price: 2, status: "DRIVER_ON_THE_WAY" }];
+
+        // Act
+        cancelRide.execute(rider, "ride-1");
+
+        // Assert
+        expect(rideRepository.rides).toEqual([{ id: "ride-1", riderId: "rider-1", price: 2, status: "CANCELLED", cancellationFee: 5 }]);
+    });
+
+    it("charges the fee on another day of the same month", () => {
+        // Arrange
+        const rider = { id: "rider-1", balance: 10, birthDate: new Date("2000-10-14T00:00:00") };
+        clock.date = new Date("2026-10-15T10:00:00");
+        rideRepository.rides = [{ id: "ride-1", riderId: "rider-1", price: 2, status: "DRIVER_ON_THE_WAY" }];
+
+        // Act
+        cancelRide.execute(rider, "ride-1");
+
+        // Assert
+        expect(rideRepository.rides).toEqual([{ id: "ride-1", riderId: "rider-1", price: 2, status: "CANCELLED", cancellationFee: 5 }]);
+    });
 });
