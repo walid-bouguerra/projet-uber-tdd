@@ -11,13 +11,17 @@ interface GoogleMapsResult {
   postalCode: string | null;
 }
 
+
+
 describe("Google Maps Address Scanner", () => {
+  const buildScanner = (result: GoogleMapsResult | null = null)=> new GoogleAddressScanner(new StubGoogleMapsClient(result))
+
   it("retourne la ville d'une adresse valide", () => {
-    const scanner = new GoogleAddressScanner(new StubGoogleMapsClient({
+    const scanner = buildScanner({
       city: "Paris",
       country: "France",
       postalCode: "75000"
-    }));
+    });
 
     const result = scanner.getAddressInfo("12 rue Aristide Briand, Paris");
 
