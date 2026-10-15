@@ -4,6 +4,7 @@ import { EstimateExpiredError } from "./estimate-expired.error";
 import { EstimateNotFoundError } from "./estimate-not-found.error";
 import { EstimateRepository } from "./estimate.repository";
 import { IDGenerator } from "./id-generator";
+import { Ride } from "./ride";
 import { RideRepository } from "./ride.repository";
 
 export class BookRideFromEstimateUsecase {
@@ -14,19 +15,21 @@ export class BookRideFromEstimateUsecase {
         private readonly clock: Clock,
     ) {}
 
-    execute(token: string): void {
+    execute(token: string): Ride {
         const estimate = this.estimateRepository.findByToken(token);
         if (!estimate) throw new EstimateNotFoundError();
         if (this.clock.now() > estimate.expiresAt) throw new EstimateExpiredError();
         if (estimate.used) throw new EstimateAlreadyUsedError();
 
-        this.rideRepository.save({
+        const ride: Ride = {
             id: this.idGenerator.generate(),
             riderId: estimate.riderId,
             price: estimate.price,
             status: "WAITING_FOR_DRIVER",
-        });
+        };
+        this.rideRepository.save(ride);
 
         this.estimateRepository.update({ ...estimate, used: true });
+        return ride;
     }
 }
