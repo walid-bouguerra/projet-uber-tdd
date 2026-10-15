@@ -98,4 +98,33 @@ describe("Book a ride", () => {
         // Assert
         expect(isBooked).toBe(true);
     });
+
+    it("saves an UberX ride at the UberX price", () => {
+        // Arrange
+        const rider = { id: "rider-1", balance: 10, birthDate: new Date("1990-01-01T00:00:00") };
+        idGenerator.id = "ride-1";
+
+        // Act
+        bookRide.execute(rider, "PARIS", "PARIS", 0, { uberX: true });
+
+        // Assert
+        expect(rideRepository.rides).toEqual([
+            { id: "ride-1", riderId: "rider-1", price: 7, status: "WAITING_FOR_DRIVER" },
+        ]);
+    });
+
+    it("books an UberX ride without the UberX fee on the rider's birthday", () => {
+        // Arrange
+        const rider = { id: "rider-1", balance: 10, birthDate: new Date("1990-06-15T00:00:00") };
+        idGenerator.id = "ride-1";
+        clock.date = new Date("2026-06-15T10:00:00");
+
+        // Act
+        bookRide.execute(rider, "PARIS", "PARIS", 0, { uberX: true });
+
+        // Assert
+        expect(rideRepository.rides).toEqual([
+            { id: "ride-1", riderId: "rider-1", price: 2, status: "WAITING_FOR_DRIVER" },
+        ]);
+    });
 })

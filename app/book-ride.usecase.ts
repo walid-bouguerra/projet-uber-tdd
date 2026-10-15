@@ -10,11 +10,11 @@ export class BookRideUsecase {
         private readonly idGenerator: IDGenerator,
     ) {}
 
-    execute(rider: Rider, from: string, to: string, distance: number): boolean {
+    execute(rider: Rider, from: string, to: string, distance: number, options: { uberX?: boolean } = {}): boolean {
         const riderRides = this.rideRepository.findByRiderId(rider.id);
         if (riderRides.some((ride) => ride.status === "WAITING_FOR_DRIVER")) return false;
 
-        const ridePrice = this.calculateRidePrice.execute(from, to, distance);
+        const ridePrice = this.calculateRidePrice.execute(from, to, distance, { ...options, riderBirthDate: rider.birthDate });
         if (rider.balance < ridePrice) return false;
 
         this.rideRepository.save({ id: this.idGenerator.generate(), riderId: rider.id, price: ridePrice, status: "WAITING_FOR_DRIVER" });
