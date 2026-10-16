@@ -12,10 +12,14 @@
 		"knex": "knex --knexfile ./setup-integration-tests/knexfile.ts --env test"
 	},
 	"dependencies": {
+		"@types/swagger-ui-express": "^4.1.8",
+		"dotenv": "^18.0.8",
 		"express": "^5.1.0",
 		"knew": "^0.0.0",
 		"knex": "^3.1.0",
-		"pg": "^8.23.1"
+		"pg": "^8.23.1",
+		"swagger-jsdoc": "^6.3.0",
+		"swagger-ui-express": "^5.0.1"
 	},
 	"devDependencies": {
 		"@types/express": "^5.0.3",
