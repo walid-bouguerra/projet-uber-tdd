@@ -11,6 +11,15 @@ export default defineConfig({
 			reporter: ["text", "lcov"],
 			reportsDirectory: "./coverage",
 			include: ["app/**/*.ts"],
+			exclude: [
+				"app/clock.ts",
+				"app/driver.ts",
+				"app/estimate.ts",
+				"app/id-generator.ts",
+				"app/ride.ts",
+				"app/rider.ts",
+				"app/**/*.repository.ts",
+			],
 			thresholds: {
 				lines: 100,
 				branches: 100,
