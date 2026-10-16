@@ -1,4 +1,5 @@
 import express, { Express } from "express";
+import swaggerUi from "swagger-ui-express";
 import { BookRideFromEstimateUsecase } from "../app/book-ride-from-estimate-usecase";
 import { BookRideUsecase } from "../app/book-ride.usecase";
 import { CalculateRidePriceUsecase } from "../app/calculate-ride-price.usecase";
@@ -14,6 +15,7 @@ import { InMemoryEstimateRepository } from "./infra/in-memory-estimate.repositor
 import { InMemoryRideRepository } from "./infra/in-memory-ride.repository";
 import { SystemClock } from "./infra/system-clock";
 import { UuidIDGenerator } from "./infra/uuid-id-generator";
+import { swaggerSpec } from "./swagger";
 
 // En JSON, une date arrive sous forme de texte : on la reconvertit en Date.
 function toRider(body: { id: string; balance: number; birthDate: string }): Rider {
@@ -35,6 +37,50 @@ export function createApp({ clock = new SystemClock() }: { clock?: Clock } = {})
     const app = express();
     app.use(express.json());
 
+    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    app.get("/api-docs.json", (_request, response) => {
+        response.setHeader("Content-Type", "application/json");
+        response.send(swaggerSpec);
+    });
+
+    /**
+     * @openapi
+     * /rides:
+     *   post:
+     *     summary: Book a ride
+     *     tags: [Rides]
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             required: [rider, from, to, distance]
+     *             properties:
+     *               rider:
+     *                 type: object
+     *                 properties:
+     *                   id:
+     *                     type: string
+     *                   balance:
+     *                     type: number
+     *                   birthDate:
+     *                     type: string
+     *                       format: date-time
+     *               from:
+     *                 type: string
+     *               to:
+     *                 type: string
+     *               distance:
+     *                 type: number
+     *               uberX:
+     *                 type: boolean
+     *     responses:
+     *       201:
+     *         description: Ride booked
+     *       422:
+     *         description: The ride cannot be booked
+     */
     app.post("/rides", (request, response) => {
         const { rider, from, to, distance, uberX } = request.body;
         if (!from || !to) return response.status(400).json({ message: "from and to are required" });
@@ -44,16 +90,102 @@ export function createApp({ clock = new SystemClock() }: { clock?: Clock } = {})
         return response.status(201).json({ message: "Ride booked" });
     });
 
+    /**
+     * @openapi
+     * /rides/{id}/cancel:
+     *   post:
+     *     summary: Cancel a ride
+     *     tags: [Rides]
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         schema:
+     *           type: string
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             required: [rider]
+     *             properties:
+     *               rider:
+     *                 type: object
+     *                 properties:
+     *                   id:
+     *                     type: string
+     *                   balance:
+     *                     type: number
+     *                   birthDate:
+     *                     type: string
+     *     responses:
+     *       200:
+     *         description: Ride cancelled
+     *       409:
+     *         description: Ride already cancelled
+     */
     app.post("/rides/:id/cancel", (request, response) => {
         const isCancelled = cancelRide.execute(toRider(request.body.rider), request.params.id);
         if (!isCancelled) return response.status(409).json({ message: "Ride already cancelled" });
         return response.status(200).json({ message: "Ride cancelled" });
     });
 
+    /**
+     * @openapi
+     * /riders/{riderId}/rides:
+     *   get:
+     *     summary: List rides for a rider
+     *     tags: [Riders]
+     *     parameters:
+     *       - in: path
+     *         name: riderId
+     *         required: true
+     *         schema:
+     *           type: string
+     *     responses:
+     *       200:
+     *         description: Success
+     */
     app.get("/riders/:riderId/rides", (request, response) => {
         return response.status(200).json(listRiderRides.execute(request.params.riderId));
     });
 
+    /**
+     * @openapi
+     * /rides/estimate:
+     *   post:
+     *     summary: Estimate ride price
+     *     tags: [Rides]
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             required: [rider, from, to, distance]
+     *             properties:
+     *               rider:
+     *                 type: object
+     *                 properties:
+     *                   id:
+     *                     type: string
+     *                   balance:
+     *                     type: number
+     *                   birthDate:
+     *                     type: string
+     *               from:
+     *                 type: string
+     *               to:
+     *                 type: string
+     *               distance:
+     *                 type: number
+     *               uberX:
+     *                 type: boolean
+     *     responses:
+     *       200:
+     *         description: Estimated ride
+     */
     app.post("/rides/estimate", (request, response) => {
         const { rider, from, to, distance, uberX } = request.body;
         if (!from || !to) return response.status(400).json({ message: "from and to are required" });
@@ -62,6 +194,32 @@ export function createApp({ clock = new SystemClock() }: { clock?: Clock } = {})
         return response.status(200).json(estimate);
     });
 
+    /**
+     * @openapi
+     * /rides/book:
+     *   post:
+     *     summary: Book a ride from an estimate token
+     *     tags: [Rides]
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             required: [token]
+     *             properties:
+     *               token:
+     *                 type: string
+     *     responses:
+     *       201:
+     *         description: Ride booked
+     *       404:
+     *         description: Unknown token
+     *       410:
+     *         description: Expired token
+     *       409:
+     *         description: Token already used
+     */
     app.post("/rides/book", (request, response) => {
         try {
             const ride = bookRideFromEstimate.execute(request.body.token);
