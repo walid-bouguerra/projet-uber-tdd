@@ -26,7 +26,7 @@ export async function startDockerPostgresql(): Promise<void> {
 	}
 }
 
-// Tables de test pour vider proprement la base entre chaque test d'intégration.
+
 const tables: string[] = ["rides", "drivers", "riders"];
 
 export async function resetDB(sqlConnection: Knex): Promise<void> {
